@@ -2,6 +2,7 @@
 #include <citro3d.h>
 #include <citro2d.h>
 #include <time.h>
+#include <stdio.h>
 
 #include "textures.h"
 #include "sprites.h"

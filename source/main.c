@@ -3,7 +3,7 @@
 #include <citro2d.h>
 #include <unistd.h>
 #include <time.h>
-
+#include <stdio.h>
 #include "textures.h"
 #include "sprites.h"
 #include "rtc.h"

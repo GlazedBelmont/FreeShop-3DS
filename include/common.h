@@ -12,4 +12,4 @@ C2D_Text g_staticText[3];
 #define BLUE                  C2D_Color32(0, 0, 255, 255)
 #define GREEN                 C2D_Color32(0, 255, 0, 255)
 #define GRAY                  C2D_Color32(128, 128, 128, 255)
-#define YELLOW                  C2D_Color32(255, 255, 0, 255)
+#define YELLOW                C2D_Color32(255, 255, 0, 255)

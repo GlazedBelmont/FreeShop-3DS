@@ -44,7 +44,6 @@ TARGET		:=	$(subst $e ,_,$(notdir $(APP_TITLE)))
 OUTDIR      :=	out
 BUILD		:=	build
 SOURCES		:=	source
-DATA		:=	data
 INCLUDES	:=	include
 GRAPHICS	:=	gfx
 ROMFS		:=	romfs
@@ -199,7 +198,7 @@ release: all
 	@rm -rf $(OUTDIR)
 #---------------------------------------------------------------------------------
 $(BUILD):
-	@mkdir -p $(OUTDIR)
+	@mkdir -p $(GFXBUILD) $(BUILD)
 	@[ -d "$@" ] || mkdir -p "$@"
 	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
 
