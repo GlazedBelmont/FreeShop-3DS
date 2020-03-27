@@ -36,8 +36,8 @@ APP_LONGTITLE	:= 	FreeShop Revival
 APP_DESCRIPTION	:=	Great Revival of FreeShop
 APP_AUTHOR		:=	GlaZed_Belmont
 
-VERSION_MAJOR := 1
-VERSION_MINOR := 0
+VERSION_MAJOR := 2
+VERSION_MINOR := 1
 VERSION_MICRO := 0
 
 TARGET		:=	$(subst $e ,_,$(notdir $(APP_TITLE)))
@@ -65,7 +65,7 @@ LOGO                :=	meta/icon.png
 
 # If left blank, makerom will use default values (0xff3ff and CTR-P-CTAP, respectively)
 # Be careful if UNIQUE_ID is the same as other apps: it will overwrite the previously installed one
-UNIQUE_ID           :=	0xFEF00
+UNIQUE_ID           :=	0xFRE35
 PRODUCT_CODE        :=	CTR-P-FREE
 
 # Don't really need to change this
@@ -170,18 +170,14 @@ else
 endif
 
 ifeq ($(strip $(NO_SMDH)),)
-	export _3DSXFLAGS += --smdh=$(OUTPUT).smdh
+	export _3DSXFLAGS += --smdh=$(CURDIR)/$(TARGET).smdh
 endif
-
-#ifeq ($(strip $(NO_SMDH)),)
-#	export _3DSXFLAGS += --smdh=$(CURDIR)/$(TARGET).smdh
-#endif
 
 ifneq ($(ROMFS),)
 	export _3DSXFLAGS += --romfs=$(CURDIR)/$(ROMFS)
 endif
 
-.PHONY: $(BUILD) clean all
+.PHONY: clean all
 
 #---------------------------------------------------------------------------------
 all: 3dsx cia
@@ -203,7 +199,7 @@ release: all
 	@rm -rf $(OUTDIR)
 #---------------------------------------------------------------------------------
 $(BUILD):
-	@mkdir -p $(OUTDIR) $(BUILD) $(GFXBUILD)
+	@mkdir -p $(OUTDIR)
 	@[ -d "$@" ] || mkdir -p "$@"
 	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
 
