@@ -2,6 +2,10 @@
 #include <citro3d.h>
 #include <citro2d.h>
 #include <time.h>
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
 #include "rtc.h"
 #include "common.h"
 

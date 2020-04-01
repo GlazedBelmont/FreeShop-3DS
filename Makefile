@@ -40,15 +40,14 @@ VERSION_MAJOR := 2
 VERSION_MINOR := 1
 VERSION_MICRO := 0
 
-TARGET		:=	$(notdir $(CURDIR))
+TARGET		:=	$(subst $e ,_,$(notdir $(APP_TITLE)))
+OUTDIR      :=	out
 BUILD		:=	build
 SOURCES		:=	source
-DATA		:=	data
 INCLUDES	:=	include
 GRAPHICS	:=	gfx
 ROMFS		:=	romfs
 GFXBUILD	:=	$(ROMFS)/gfx
-
 
 # Path to the files
 # If left blank, will try to use "icon.png", "$(TARGET).png", or the default ctrulib icon, in that order
@@ -60,12 +59,12 @@ BANNER_IMAGE        :=	meta/banner.png
 RSF_PATH            :=	meta/app.rsf
 
 # If left blank, makerom will use the default Homebrew logo
-LOGO                :=	meta/icon.png
+LOGO                :=	meta/logo.bcma.lz
 
 
 # If left blank, makerom will use default values (0xff3ff and CTR-P-CTAP, respectively)
 # Be careful if UNIQUE_ID is the same as other apps: it will overwrite the previously installed one
-UNIQUE_ID           :=	0xFRE35
+UNIQUE_ID           :=	0xFA14
 PRODUCT_CODE        :=	CTR-P-FREE
 
 # Don't really need to change this
@@ -103,7 +102,7 @@ LIBDIRS	:= $(CTRULIB) $(PORTLIBS)
 ifneq ($(BUILD),$(notdir $(CURDIR)))
 #---------------------------------------------------------------------------------
 
-export OUTPUT	:=	$(CURDIR)/$(TARGET)
+export OUTPUT	:=	$(CURDIR)/$(OUTDIR)/$(TARGET)
 export TOPDIR	:=	$(CURDIR)
 
 export VPATH	:=	$(foreach dir,$(SOURCES),$(CURDIR)/$(dir)) \
@@ -134,24 +133,13 @@ else
 endif
 #---------------------------------------------------------------------------------
 
-#---------------------------------------------------------------------------------
-ifeq ($(GFXBUILD),$(BUILD))
-#---------------------------------------------------------------------------------
-export T3XFILES :=  $(GFXFILES:.t3s=.t3x)
-#---------------------------------------------------------------------------------
-else
-#---------------------------------------------------------------------------------
-export ROMFS_T3XFILES	:=	$(patsubst %.t3s, $(GFXBUILD)/%.t3x, $(GFXFILES))
-export T3XHFILES		:=	$(patsubst %.t3s, $(BUILD)/%.h, $(GFXFILES))
-#---------------------------------------------------------------------------------
-endif
-#---------------------------------------------------------------------------------
+export T3XFILES		:=	$(GFXFILES:.t3s=.t3x)
 
 export OFILES_SOURCES 	:=	$(CPPFILES:.cpp=.o) $(CFILES:.c=.o) $(SFILES:.s=.o)
 
 export OFILES_BIN	:=	$(addsuffix .o,$(BINFILES)) \
 			$(PICAFILES:.v.pica=.shbin.o) $(SHLISTFILES:.shlist=.shbin.o) \
-			$(addsuffix .o,$(T3XFILES))
+			$(if $(filter $(BUILD),$(GFXBUILD)),$(addsuffix .o,$(T3XFILES)))
 
 export OFILES := $(OFILES_BIN) $(OFILES_SOURCES)
 
@@ -181,70 +169,71 @@ else
 endif
 
 ifeq ($(strip $(NO_SMDH)),)
-	export _3DSXFLAGS += --smdh=$(CURDIR)/$(TARGET).smdh
+	export _3DSXFLAGS += --smdh=$(CURDIR)/$(OUTDIR)/$(TARGET).smdh
+endif
+
+ifneq ($(ROMFS),)
+	export _3DSXFLAGS += --romfs=$(CURDIR)/$(ROMFS)
+#---------------------------------------------------------------------------------
+endif
+#---------------------------------------------------------------------------------
+
+export T3XFILES		:=	$(GFXFILES:.t3s=.t3x)
+
+export OFILES_SOURCES 	:=	$(CPPFILES:.cpp=.o) $(CFILES:.c=.o) $(SFILES:.s=.o)
+
+export OFILES_BIN	:=	$(addsuffix .o,$(BINFILES)) \
+			$(PICAFILES:.v.pica=.shbin.o) $(SHLISTFILES:.shlist=.shbin.o) \
+			$(if $(filter $(BUILD),$(GFXBUILD)),$(addsuffix .o,$(T3XFILES)))
+
+export OFILES := $(OFILES_BIN) $(OFILES_SOURCES)
+
+export HFILES	:=	$(PICAFILES:.v.pica=_shbin.h) $(SHLISTFILES:.shlist=_shbin.h) \
+			$(addsuffix .h,$(subst .,_,$(BINFILES))) \
+			$(GFXFILES:.t3s=.h)
+
+export INCLUDE	:=	$(foreach dir,$(INCLUDES),-I$(CURDIR)/$(dir)) \
+			$(foreach dir,$(LIBDIRS),-I$(dir)/include) \
+			-I$(CURDIR)/$(BUILD)
+
+export LIBPATHS	:=	$(foreach dir,$(LIBDIRS),-L$(dir)/lib)
+
+export _3DSXDEPS	:=	$(if $(NO_SMDH),,$(OUTPUT).smdh)
+
+ifeq ($(strip $(ICON)),)
+	icons := $(wildcard *.png)
+	ifneq (,$(findstring $(TARGET).png,$(icons)))
+		export APP_ICON := $(TOPDIR)/$(TARGET).png
+	else
+		ifneq (,$(findstring icon.png,$(icons)))
+			export APP_ICON := $(TOPDIR)/icon.png
+		endif
+	endif
+else
+	export APP_ICON := $(TOPDIR)/$(ICON)
+endif
+
+ifeq ($(strip $(NO_SMDH)),)
+	export _3DSXFLAGS += --smdh=$(CURDIR)/$(OUTDIR)/$(TARGET).smdh
 endif
 
 ifneq ($(ROMFS),)
 	export _3DSXFLAGS += --romfs=$(CURDIR)/$(ROMFS)
 endif
 
-.PHONY: all clean
-
-#---------------------------------------------------------------------------------
-all: 3dsx cia
-
-3dsx: $(BUILD) $(OUTPUT).3dsx
-
-cia : $(BUILD) $(OUTPUT).cia
-
-release: all
-	@rm -rf $(BUILD)
-	@rm -rf $(OUTDIR)/$(APP_TITLE).elf
-	@mkdir 3ds
-	@mkdir 3ds/$(APP_TITLE)
-	@cp $(OUTDIR)/$(APP_TITLE).3dsx 3ds/$(APP_TITLE)/$(APP_TITLE).3dsx
-	@cp $(OUTDIR)/$(APP_TITLE).smdh 3ds/$(APP_TITLE)/$(APP_TITLE).smdh
-	@cp $(OUTDIR)/$(APP_TITLE).cia $(APP_TITLE).cia
-	@zip -r $(APP_TITLE)-$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_MICRO).zip 3ds/ $(APP_TITLE).cia
-	@rm -rf 3ds/ $(APP_TITLE).cia
-	@rm -rf $(OUTDIR)
-#---------------------------------------------------------------------------------
-$(BUILD):
-	@mkdir -p $(GFXBUILD) $(BUILD)
-	@[ -d "$@" ] || mkdir -p "$@"
-	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
-
-#---------------------------------------------------------------------------------
-clean:
-	@echo clean ...
-	@rm -fr $(BUILD) $(OUTDIR)
-	@rm -rf $(APP_TITLE)-$(revision).zip
-	@rm -rf $(APP_TITLE).cia
-	@rm -rf 3ds/
-
-#---------------------------------------------------------------------------------
-ifeq ($(strip $(NO_SMDH)),)
-$(OUTPUT).3dsx	:	$(OUTPUT).elf $(OUTPUT).smdh
-else
-$(OUTPUT).3dsx	:	$(OUTPUT).elf
-endif
+.PHONY: all 3dsx cia clean
 
 #---------------------------------------------------------------------------------
 MAKEROM		?=	makerom
 
-MAKEROM_ARGS		:=	-elf "$(OUTPUT).elf" -rsf "$(RSF_PATH)" -major $(VERSION_MAJOR) -minor $(VERSION_MINOR) -micro $(VERSION_MICRO) -banner "$(BUILD)/banner.bnr" -icon "$(BUILD)/icon.icn" -DAPP_TITLE="$(APP_TITLE)" -DAPP_PRODUCT_CODE="$(PRODUCT_CODE)" -DAPP_UNIQUE_ID="$(UNIQUE_ID)"
+MAKEROM_ARGS		:=	-elf "$(OUTPUT).elf" -rsf "$(RSF_PATH)" -banner "$(BUILD)/banner.bnr" -icon "$(BUILD)/icon.icn" -DAPP_TITLE="$(APP_TITLE)" -DAPP_PRODUCT_CODE="$(PRODUCT_CODE)" -DAPP_UNIQUE_ID="$(UNIQUE_ID)"
+
 ifneq ($(strip $(LOGO)),)
 	MAKEROM_ARGS	+=	 -logo "$(LOGO)"
 endif
-
-ifeq ($(strip $(ROMFS)),)
-$(OUTPUT).cia: $(OUTPUT).elf $(BUILD)/banner.bnr $(BUILD)/icon.icn
-	$(MAKEROM) -f cia -o "$@" -target t -exefslogo $(MAKEROM_ARGS)
-else
-$(OUTPUT).cia: $(OUTPUT).elf $(BUILD)/banner.bnr $(BUILD)/icon.icn
-	$(MAKEROM) -f cia -o "$@" -target t -exefslogo $(MAKEROM_ARGS)
+ifneq ($(strip $(ROMFS)),)
+	MAKEROM_ARGS	+=	 -DAPP_ROMFS="$(ROMFS)"
 endif
-
 
 BANNERTOOL	?=	bannertool
 
@@ -260,17 +249,39 @@ else
 	BANNER_AUDIO_ARG := -a
 endif
 
-$(BUILD)/banner.bnr	:	$(BANNER_IMAGE) $(BANNER_AUDIO)
-	$(BANNERTOOL) makebanner $(BANNER_IMAGE_ARG) "$(BANNER_IMAGE)" $(BANNER_AUDIO_ARG) "$(BANNER_AUDIO)" -o "$@"
+#---------------------------------------------------------------------------------
+all: 3dsx cia
+#---------------------------------------------------------------------------------
+3dsx:
+	@mkdir -p $(BUILD) $(GFXBUILD) $(OUTDIR)
+	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
 
-$(BUILD)/icon.icn	:	$(APP_ICON)
-	$(BANNERTOOL) makesmdh -s "$(APP_TITLE)" -l "$(APP_DESCRIPTION)" -p "$(APP_AUTHOR)" -i "$(APP_ICON)" -f "$(ICON_FLAGS)" -o "$@"
+#---------------------------------------------------------------------------------
+cia:
+	@$(BANNERTOOL) makebanner $(BANNER_IMAGE_ARG) "$(BANNER_IMAGE)" $(BANNER_AUDIO_ARG) "$(BANNER_AUDIO)" -o "$(BUILD)/banner.bnr"
+	@$(BANNERTOOL) makesmdh -s "$(APP_TITLE)" -l "$(APP_DESCRIPTION)" -p "$(APP_AUTHOR)" -i "$(APP_ICON)" -f "$(ICON_FLAGS)" -o "$(BUILD)/icon.icn"
+	$(MAKEROM) -f cia -o "$(OUTPUT).cia" -target t -exefslogo $(MAKEROM_ARGS)
 
+#---------------------------------------------------------------------------------
+release: all
+	@rm -rf $(BUILD)
+	@rm -rf $(OUTDIR)/$(APP_TITLE).elf
+	@mkdir 3ds
+	@mkdir 3ds/$(APP_TITLE)
+	@cp $(OUTDIR)/$(APP_TITLE).3dsx 3ds/$(APP_TITLE)/$(APP_TITLE).3dsx
+	@cp $(OUTDIR)/$(APP_TITLE).smdh 3ds/$(APP_TITLE)/$(APP_TITLE).smdh
+	@cp $(OUTDIR)/$(APP_TITLE).cia $(APP_TITLE).cia
+	@zip -r $(APP_TITLE)-$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_MICRO).zip 3ds/ $(APP_TITLE).cia
+	@rm -rf 3ds/ $(APP_TITLE).cia
+	@rm -rf $(OUTDIR)
+
+#---------------------------------------------------------------------------------
+clean:
+	@echo clean ...
+	@rm -fr $(BUILD) $(OUTDIR) $(GFXBUILD)
 
 #---------------------------------------------------------------------------------
 else
-
-DEPENDS	:=	$(OFILES:.o=.d)
 
 #---------------------------------------------------------------------------------
 # main targets
@@ -291,10 +302,8 @@ $(OUTPUT).elf	:	$(OFILES)
 
 #---------------------------------------------------------------------------------
 .PRECIOUS	:	%.t3x
-#---------------------------------------------------------------------------------
 %.t3x.o	%_t3x.h :	%.t3x
 #---------------------------------------------------------------------------------
-	@echo $(notdir $<)
 	@$(bin2o)
 
 #---------------------------------------------------------------------------------
@@ -327,7 +336,7 @@ endef
 %.t3x	%.h	:	%.t3s
 #---------------------------------------------------------------------------------
 	@echo $(notdir $<)
-	@tex3ds -i $< -H $*.h -d $*.d -o $*.t3x
+	@tex3ds -i $< -H $*.h -d $*.d -o $(TOPDIR)/$(GFXBUILD)/$*.t3x
 
 -include $(DEPSDIR)/*.d
 

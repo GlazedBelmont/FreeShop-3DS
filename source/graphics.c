@@ -28,7 +28,7 @@ void move_arrow(float size, int speed){
 void draw_freeshop(){
     int X = 270;
     int Y = 186;
-    C2D_DrawImageAt(freeshop, X, Y, 0.5f, NULL, 1, 1);
+    C2D_DrawImageAt(Freeshop, X, Y, 0.5f, NULL, 1, 1);
 
 }
 

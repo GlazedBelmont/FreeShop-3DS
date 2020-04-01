@@ -1,9 +1,11 @@
 #include <3ds.h>
 #include <citro3d.h>
 #include <citro2d.h>
-#include <unistd.h>
 #include <time.h>
 #include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
 #include "textures.h"
 #include "sprites.h"
 #include "rtc.h"
@@ -24,8 +26,9 @@ int init_audio_1st = 0;
 
 
 static const char rule11[] =
-	"Please see rule 11 in #welcome-and-rules\n\n"
-	"Don't...\n"
+	"Illegitimate copies and other copyright violations\n"
+        "are not permitted.\n\n"
+	"In particular, this forbids\n"
 	"• ask how to pirate games\n"
 	"• share full game data\n"
 	"• mention piracy sites and tools by name\n"
@@ -37,7 +40,7 @@ static const char prompt[] =
     "If you still want to access Freeshop\n"
 	"Press Y";
 
-char *songs[4] = {"romfs:/pbanj.ogg", "romfs:/pirate.ogg", "romfs:/objection.ogg", "romfs:/cornered.ogg"}; // Add more songs if you want! :D
+char *songs[4] = {"romfs:/pirate.ogg", "romfs:/objection.ogg", "romfs:/cornered.ogg", "romfs:/pbanj.ogg"}; // Add more songs if you want! :D
 
 
 static void sceneInit(void)
@@ -213,7 +216,7 @@ int main(int argc, char **argv)
 			C2D_TargetClear(top, BLACK);
 			C2D_DrawRectangle(0, 0, 0, 400, 240, BLACK, BLACK, BLACK, BLACK);
 //			C2D_DrawRectangle(0, 0, 0, 400, 240, RED, GREEN, BLUE, YELLOW);
-			C2D_DrawImageAt(kurisu, 70, 30, 0.5f, NULL, 1, 1);
+			C2D_DrawImageAt(kurisu, 70, 30, 0.0f, NULL, 1, 1);
 			
 
 			C2D_SceneBegin(bottom);

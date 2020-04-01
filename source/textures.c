@@ -14,7 +14,7 @@ void texload(){
 	bottombrick = C2D_SpriteSheetGetImage(spritesheet, sprites_bottom_idx);
 	Y_button = C2D_SpriteSheetGetImage(spritesheet, sprites_Ybutton_idx);
 	arrow = C2D_SpriteSheetGetImage(spritesheet, sprites_arrow_idx);
-	freeshop = C2D_SpriteSheetGetImage(spritesheet, sprites_freeshop_idx);
+	Freeshop = C2D_SpriteSheetGetImage(spritesheet, sprites_freeshop_idx);
 
 }
 

@@ -1,12 +1,12 @@
 BasicInfo:
-  Title                   : "FreeShop"
+  Title                   : $(APP_TITLE)
   CompanyCode             : "00"
-  ProductCode             : "CTR-P-FREE"
+  ProductCode             : $(APP_PRODUCT_CODE)
   ContentType             : Application
   Logo                    : Homebrew # Nintendo / Licensed / Distributed / iQue / iQueForSystem
 
 TitleInfo:
-  UniqueId                : 0xF12EE
+  UniqueId                : $(APP_UNIQUE_ID)
   Category                : Application
   
 CardInfo:
@@ -34,7 +34,7 @@ SystemControlInfo:
   StackSize: 0x40000
   
 RomFs:
-    RootPath            : romfs
+    RootPath            : $(APP_ROMFS)
   
 # DO NOT EDIT BELOW HERE OR PROGRAMS WILL NOT LAUNCH (most likely)
 
