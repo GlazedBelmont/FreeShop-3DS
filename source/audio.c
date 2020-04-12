@@ -1,3 +1,5 @@
+/* Credits to ChromaRyu/KnightRyu for this code because I have no fucking idea how audio works :P */
+
 #include <3ds.h>
 
 #include "audio.h"
