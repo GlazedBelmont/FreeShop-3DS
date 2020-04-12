@@ -26,9 +26,8 @@ int init_audio_1st = 0;
 
 
 static const char rule11[] =
-	"Illegitimate copies and other copyright violations\n"
-        "are not permitted.\n\n"
-	"In particular, this forbids\n"
+	"Please see rule 11 in #welcome-and-rules\n\n"
+	"Don't...\n"
 	"• ask how to pirate games\n"
 	"• share full game data\n"
 	"• mention piracy sites and tools by name\n"
@@ -37,8 +36,9 @@ static const char rule11[] =
 	"• in general commit copyright violations\n";
 
 static const char prompt[] =
-    "If you still want to access Freeshop\n"
-	"Press Y";
+    "PRESS Y TO FRIIGAEM";
+
+
 
 char *songs[4] = {"romfs:/pirate.ogg", "romfs:/objection.ogg", "romfs:/cornered.ogg", "romfs:/pbanj.ogg"}; // Add more songs if you want! :D
 
@@ -222,7 +222,7 @@ int main(int argc, char **argv)
 			C2D_SceneBegin(bottom);
 			C2D_TargetClear(bottom, BLACK);
 			C2D_DrawRectangle(0, 0, 0, 320, 240, BLACK, BLACK, BLACK, BLACK);
-			C2D_DrawText(&g_staticText[0], C2D_WithColor, 8.0f, 8.0f, 0.5f, size, size, WHITE);
+			//C2D_DrawText(&g_staticText[0], C2D_WithColor, 8.0f, 8.0f, 0.5f, size, size, WHITE);
 
 
 			if (debug == true){
@@ -300,7 +300,7 @@ int main(int argc, char **argv)
 			bricked = true;
 		}
 		
-		if (seconds == (init_seconds + 20)) eShop = true; // Makes it so the Y button appears after 20s
+		if (seconds == (init_seconds + 20 )) eShop = true; // Makes it so the Y button appears after 20s
 		
 		gfxFlushBuffers();
 		gfxSwapBuffers();
